@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - NanoCal | Company Information</title>
+  <meta name="description" content="Learn about NanoCal Industries, a leader in nano-activated calcium chloride production with 25+ years of industrial chemical expertise.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+      margin-top: 40px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-secondary);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px var(--color-primary);
+    }
+    .timeline-year {
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+    }
+    .team-card {
+      text-align: center;
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    .team-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-hover);
+    }
+    .team-avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .team-card h4 {
+      margin-bottom: 4px;
+    }
+    .team-card .role {
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+    }
+    .certifications-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .cert-card {
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .cert-card .icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 1024px) {
+      .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .certifications-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .team-grid,
+      .certifications-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <nav class="nav">
+        <a href="index.html" class="logo">
+      <div class="logo-icon"></div>
+        <img src="logo.png" alt="Logo">
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="applications.html">Applications</a></li>
+          <li><a href="about.html" class="active">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-cta">
+          <a href="contact.html" class="btn btn-primary">Get Quote</a>
+        </div>
+        <div class="mobile-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>About NanoCal</h1>
+      <p>Pioneering nano-technology in industrial chemicals since 1999</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span>/</span>
+        <span>About</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Content -->
+  <section class="about section">
+    <div class="container">
+      <div class="about-content">
+        <div class="about-image">
+          <div >
+             <img src="about us.png" alt="factry">
+          </div>
+        </div>
+        <div class="about-text">
+          <h2>Our Story</h2>
+          <p>NanoCal Industries was founded in 1999 with a vision to revolutionize the industrial chemicals sector through advanced nano-technology. What began as a small research facility has grown into a global leader in nano-activated calcium chloride production.</p>
+          <p>Our proprietary nano-activation process, developed through years of intensive research, produces calcium chloride particles at the nanometer scale. This breakthrough technology delivers superior performance across all applications, from moisture absorption to ice melting.</p>
+          <p>Today, we serve over 500 industrial clients across 50+ countries, providing innovative solutions that improve efficiency, reduce costs, and enable new possibilities in diverse industries.</p>
+          <div class="about-stats">
+            <div class="about-stat">
+              <h3>25+</h3>
+              <p>Years Experience</p>
+            </div>
+            <div class="about-stat">
+              <h3>500+</h3>
+              <p>Global Clients</p>
+            </div>
+            <div class="about-stat">
+              <h3>50+</h3>
+              <p>Countries</p>
+            </div>
+            <div class="about-stat">
+              <h3>99.5%</h3>
+              <p>Purity Standard</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission & Vision -->
+  <section class="section" style="background: var(--color-light);">
+    <div class="container">
+      <div class="features-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="feature-card">
+    
+          <h3>Our Mission</h3>
+          <p>To deliver innovative nano-activated chemical solutions that enhance industrial processes, protect valuable products, and contribute to a safer, more efficient world. We are committed to continuous research and development to stay at the forefront of nano-technology applications.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Our Vision</h3>
+          <p>To be the global leader in nano-activated industrial chemicals, recognized for exceptional quality, innovative solutions, and unwavering commitment to customer success. We envision a future where nano-technology transforms industrial processes worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Company Timeline -->
+  <section class="section" style="background: var(--color-cream);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Our Journey</h2>
+        <p>Key milestones in our growth and innovation</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">1999</div>
+          <h4>Company Founded</h4>
+          <p>NanoCal Industries established as a research-focused startup specializing in industrial calcium compounds.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2005</div>
+          <h4>Nano-Technology Breakthrough</h4>
+          <p>Successful development of proprietary nano-activation process, achieving particle sizes below 100nm.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2010</div>
+          <h4>Global Expansion</h4>
+          <p>Opened distribution centers in Europe and Asia, expanding reach to 25 countries.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2015</div>
+          <h4>ISO Certification</h4>
+          <p>Achieved ISO 9001:2015 certification, establishing world-class quality management systems.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2020</div>
+          <h4>Production Scale-Up</h4>
+          <p>Commissioned new state-of-the-art production facility with 10,000 MT annual capacity.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025</div>
+          <h4>Innovation Continues</h4>
+          <p>Launched next-generation nano-activated products with enhanced performance characteristics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section" style="background: var(--color-light);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Our Values</h2>
+        <p>The principles that guide everything we do</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Innovation</h3>
+          <p>Continuous research and development drives us to push boundaries and discover new possibilities in nano-technology.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Quality</h3>
+          <p>Uncompromising commitment to product excellence ensures consistent performance in every batch we produce.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Partnership</h3>
+          <p>We build lasting relationships with clients, working together to solve challenges and achieve success.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Sustainability</h3>
+          <p>Environmental responsibility is integral to our operations, from production to packaging and delivery.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Integrity</h3>
+          <p>Transparent, ethical business practices form the foundation of trust with our clients and partners.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Excellence</h3>
+          <p>We strive for excellence in every aspect of our business, from customer service to technical support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ 
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h2>Partner With NanoCal</h2>
+      <p>Join hundreds of leading companies who trust NanoCal for their industrial chemical needs.</p>
+      <a href="contact.html" class="btn">Contact Us</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon">NC</div>
+            <span style="color: white;">NanoCal</span>
+          </div>
+          <p>Industry-leading nano-activated calcium chloride solutions for diverse industrial applications worldwide.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Products</h4>
+          <ul>
+            <li><a href="products.html">Desiccant Grade</a></li>
+            <li><a href="products.html">Industrial Grade</a></li>
+            <li><a href="products.html">De-Icing Grade</a></li>
+            <li><a href="products.html">Laboratory Grade</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="applications.html">Applications</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="#">Certifications</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Technical Data</a></li>
+            <li><a href="#">Safety Data Sheets</a></li>
+            <li><a href="contact.html">Customer Service</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 NanoCal Industries. All rights reserved.</p>
+        <div class="social-links">
+          <a href="#" aria-label="LinkedIn">in</a>
+          <a href="#" aria-label="Twitter">X</a>
+          <a href="#" aria-label="YouTube">▶</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="/js/admin-login.js"></script>
+</body>
+</html>
