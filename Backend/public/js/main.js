@@ -4,7 +4,7 @@
 //  Place this file in your public/js/ folder
 // ============================================================
 
-const API = 'https://nodejs-production-b8d01.up.railway.app';   // change to your deployed URL in production
+const API = 'https://nodejs-production-b8d01.up.railway.app/api';  // change to your deployed URL in production
 
 // ── Utility: show / hide loading spinner ───────────────────────────────────
 function showLoading(containerId) {
