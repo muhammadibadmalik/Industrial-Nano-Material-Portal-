@@ -218,7 +218,7 @@
 </div>
 
 <script>
-const API = 'https://nodejs-production-b8d01.up.railway.app/api';
+const API = '/api';
 let token = localStorage.getItem('admin_token');
 let editingId = null;
 let allProducts = [];
@@ -226,12 +226,12 @@ let allProducts = [];
 // ── Guard: redirect to home if no token ──────────────────────────────────────
 if (!token) {
   alert('Please login first.');
-  window.location.href = '../';
+  window.location.href = '/';
 }
 
 function logout() {
   localStorage.removeItem('admin_token');
-  window.location.href = '../';
+  window.location.href = '/';
 }
 
 function authHeaders() {
