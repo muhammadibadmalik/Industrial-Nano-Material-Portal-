@@ -429,6 +429,17 @@ Effective dust suppression solution for mining, construction sites, and unpaved 
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+function filterProducts(category) {
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.style.display = (category === 'all' || card.dataset.category === category) ? '' : 'none';
+  });
+}
+</script>
   <script src="js/admin-login.js"></script>
+  <
 </body>
 </html>
