@@ -6,6 +6,9 @@
 
 (function () {
 
+  // ── 0. Backend API base URL ────────────────────────────────────────────
+  const API_BASE = 'https://nodejs-production-b8d01.up.railway.app';
+
   // ── 1. Inject CSS ────────────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
@@ -186,7 +189,7 @@
   // If already logged in, button goes straight to panel
   if (localStorage.getItem('admin_token')) {
     floatBtn.textContent = '⚙️ Admin Panel';
-    floatBtn.onclick = () => window.location.href = '/admin/';
+    floatBtn.onclick = () => window.location.href = 'admin/';
   } else {
     floatBtn.onclick = openModal;
   }
@@ -230,7 +233,7 @@
     errorBox.classList.remove('show');
 
     try {
-      const res  = await fetch('/api/auth/login', {
+      const res  = await fetch(`${API_BASE}/api/auth/login`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ username, password }),
@@ -240,7 +243,7 @@
       if (json.success && json.token) {
         localStorage.setItem('admin_token', json.token);
         closeModal();
-        window.location.href = '/admin/';
+        window.location.href = 'admin/';
       } else {
         errorBox.textContent = json.message || 'Invalid credentials.';
         errorBox.classList.add('show');
