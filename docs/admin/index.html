@@ -256,7 +256,7 @@ async function loadProducts() {
 
     tbody.innerHTML = allProducts.map(p => `
       <tr>
-        <td><img src="/${p.image}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"/></td>
+   <td><img src="Images/${p.image}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"/></td>
         <td style="max-width:220px;font-weight:500">${p.name}</td>
         <td><span class="badge badge-${p.category}">${p.category}</span></td>
         <td>${p.specs?.purity || '—'}</td>
