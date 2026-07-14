@@ -6,10 +6,13 @@
 
 (function () {
 
+  // ── 0. Backend API base URL ────────────────────────────────────────────
+  const API_BASE = 'https://nodejs-production-b8d01.up.railway.app';
+
   // ── 1. Inject CSS ────────────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
-    #admin-float-btn {
+   #admin-float-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -23,17 +26,16 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0,0,0,.25);
-  transition: background .2s, transform .1s;
-  font-family: 'Segoe UI', Arial, sans-serif;
 }
-@media (max-width: 768px) {
-  #admin-float-btn {
-    bottom: 15px;
-    right: 15px;
-    padding: 8px 14px;
-    font-size: 12px;
+
+@media (max-width:768px){
+  #admin-float-btn{
+    bottom:15px;
+    right:15px;
+    padding:8px 14px;
+    font-size:12px;
   }
-}  
+}
     #admin-float-btn:hover { background: #24523e; transform: translateY(-1px); }
 
     #admin-modal-overlay {
@@ -231,7 +233,7 @@
     errorBox.classList.remove('show');
 
     try {
-      const res  = await fetch('/api/auth/login', {
+      const res  = await fetch(`${API_BASE}/api/auth/login`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ username, password }),
