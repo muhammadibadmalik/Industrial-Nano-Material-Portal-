@@ -1,3 +1,6 @@
+// ── Backend API base URL ──────────────────────────────────────────────────
+const API_BASE = 'https://nodejs-production-b8d01.up.railway.app';
+
 // ===== Mobile Navigation Toggle =====
 document.addEventListener('DOMContentLoaded', function() {
   const mobileToggle = document.querySelector('.mobile-toggle');
@@ -116,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (isValid) {
   try {
-    const response = await fetch('/api/inquiries', {
+    const response = await fetch(`${API_BASE}/api/inquiries`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
