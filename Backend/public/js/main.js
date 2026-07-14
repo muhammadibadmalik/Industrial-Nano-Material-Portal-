@@ -4,7 +4,7 @@
 //  Place this file in your public/js/ folder
 // ============================================================
 
-const API = 'http://localhost:5000/api';   // change to your deployed URL in production
+const API = 'https://nodejs-production-b8d01.up.railway.app';   // change to your deployed URL in production
 
 // ── Utility: show / hide loading spinner ───────────────────────────────────
 function showLoading(containerId) {
@@ -221,7 +221,6 @@ async function initProductDetailsPage() {
 //  Handles form submission → POST /api/inquiries
 // ═══════════════════════════════════════════════════════════════
 function initContactPage() {
-  await fetch('/api/inquiries', ...)
   const form = document.getElementById('contact-form');
   if (!form) return;   // not on contact page — skip
 
