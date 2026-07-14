@@ -226,12 +226,12 @@ let allProducts = [];
 // ── Guard: redirect to home if no token ──────────────────────────────────────
 if (!token) {
   alert('Please login first.');
-  window.location.href = '/';
+  window.location.href = '../';
 }
 
 function logout() {
   localStorage.removeItem('admin_token');
-  window.location.href = '/';
+  window.location.href = '../';
 }
 
 function authHeaders() {
