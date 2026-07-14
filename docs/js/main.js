@@ -1,62 +1,348 @@
-// ── Backend API base URL ──────────────────────────────────────────────────
-const API_BASE = 'https://nodejs-production-b8d01.up.railway.app';
+// ============================================================
+//  NanoCal CaCl₂ — main.js  (single merged file — use ONLY this one)
+//  Place in public/js/main.js and delete every other main.js
+// ============================================================
 
-// ===== Mobile Navigation Toggle =====
-document.addEventListener('DOMContentLoaded', function() {
+const API = 'https://nodejs-production-b8d01.up.railway.app/api'; // change for production if needed
+
+// ── Utility: loading / error states ─────────────────────────────────────
+function showLoading(containerId) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `
+    <div style="text-align:center; padding:60px 0; color:#888;">
+      <div style="font-size:2rem; margin-bottom:12px;">⏳</div>
+      <p>Loading products...</p>
+    </div>`;
+}
+
+function showError(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `
+    <div style="text-align:center; padding:60px 0; color:#c0392b;">
+      <div style="font-size:2rem; margin-bottom:12px;">⚠️</div>
+      <p>${msg}</p>
+    </div>`;
+}
+
+// ── Build a product card — MUST match your real CSS classes ─────────────
+// (product-card > img.product-img + div.product-info > h3, p, .product-meta > .product-tag + .product-link)
+function buildProductCard(product) {
+  const categoryLabel = {
+    desiccant:  'Desiccant',
+    industrial: 'Industrial',
+    deicing:    'De-Icing',
+    laboratory: 'Laboratory',
+  }[product.category] || product.category;
+
+  return `
+    <div class="product-card" data-category="${product.category}">
+      <img src="Images/${product.image}" alt="${product.name}" class="product-img"
+           onerror="this.src='Images/placeholder.png'">
+      <div class="product-info">
+        <h3>${product.name}</h3>
+        <p>${product.description}</p>
+        <div class="product-meta">
+          <span class="product-tag">${categoryLabel}</span>
+          <a href="product-details.html?id=${product._id}" class="product-link">Learn More →</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Attach hover-zoom to a product card's image (called after every render) ─
+function attachCardHoverEffects() {
+  document.querySelectorAll('.product-card').forEach(card => {
+    const img = card.querySelector('.product-img');
+    if (!img || card.dataset.hoverBound) return;
+    card.dataset.hoverBound = 'true';
+    card.addEventListener('mouseenter', () => img.style.transform = 'scale(1.05)');
+    card.addEventListener('mouseleave', () => img.style.transform = 'scale(1)');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PAGE: products.html
+// ═══════════════════════════════════════════════════════════════
+async function initProductsPage() {
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+
+  let allProducts = [];
+
+  showLoading('products-grid');
+  try {
+    const res = await fetch(`${API}/products`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message);
+    allProducts = json.data;
+  } catch (err) {
+    showError('products-grid', 'Could not load products. Please try again later.');
+    console.error(err);
+    return;
+  }
+
+  function renderProducts(category) {
+    const filtered = category === 'all'
+      ? allProducts
+      : allProducts.filter(p => p.category === category);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<p style="text-align:center;padding:40px;color:#888;">No products found in this category.</p>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(buildProductCard).join('');
+    attachCardHoverEffects();
+  }
+
+  renderProducts('all');
+
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts(btn.dataset.category);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PAGE: product-details.html
+// ═══════════════════════════════════════════════════════════════
+async function initProductDetailsPage() {
+  const container = document.getElementById('product-details-container');
+  if (!container) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
+  if (!id) {
+    container.innerHTML = '<p style="text-align:center;padding:60px;">No product selected.</p>';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/products/${id}`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message);
+
+    const p = json.data;
+    const related = json.related || [];
+
+    document.title = `${p.name} — NanoCal Industries`;
+
+    const breadcrumb = document.getElementById('product-breadcrumb');
+    if (breadcrumb) breadcrumb.textContent = p.name;
+
+    const mainImg = document.getElementById('product-main-image');
+    if (mainImg) {
+      mainImg.src = `Images/${p.image}`;
+      mainImg.alt = p.name;
+    }
+
+    const nameEl = document.getElementById('product-name');
+    if (nameEl) nameEl.textContent = p.name;
+
+    const catEl = document.getElementById('product-category');
+    if (catEl) catEl.textContent = p.category.charAt(0).toUpperCase() + p.category.slice(1);
+
+    const descEl = document.getElementById('product-description');
+    if (descEl) descEl.textContent = p.description;
+
+    const specsRow = document.getElementById('product-specs-row');
+    if (specsRow) {
+      specsRow.innerHTML = `
+        <div class="spec-item"><span>Purity</span><strong>${p.specs.purity}</strong></div>
+        <div class="spec-item"><span>Particle Size</span><strong>${p.specs.particleSize}</strong></div>
+        <div class="spec-item"><span>Moisture Absorption</span><strong>${p.specs.moistureAbsorption}</strong></div>
+        <div class="spec-item"><span>Packaging</span><strong>${p.specs.packaging}</strong></div>`;
+    }
+
+    const tabDesc = document.getElementById('tab-description-content');
+    if (tabDesc) {
+      tabDesc.innerHTML = `
+        <p>${p.fullDescription || p.description}</p>
+        ${p.benefits && p.benefits.length ? `
+          <h4 style="margin-top:20px;">Key Benefits</h4>
+          <ul>${p.benefits.map(b => `<li>${b}</li>`).join('')}</ul>` : ''}`;
+    }
+
+    const tabSpecs = document.getElementById('tab-specifications-content');
+    if (tabSpecs) {
+      const rows = [
+        ['Chemical Formula', p.specs.chemicalFormula],
+        ['Purity', p.specs.purity],
+        ['Molecular Weight', p.specs.molecularWeight],
+        ['Particle Size', p.specs.particleSize],
+        ['Bulk Density', p.specs.bulkDensity],
+        ['Moisture Content', p.specs.moistureContent],
+        ['Appearance', p.specs.appearance],
+        ['Form', p.specs.form],
+        ['Packaging', p.specs.packaging],
+        ['Shelf Life', p.specs.shelfLife],
+      ];
+      tabSpecs.innerHTML = `
+        <table style="width:100%;margin-top:16px;border-collapse:collapse;">
+          <tbody>
+            ${rows.map(([label, val]) => `
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:12px 0;font-weight:600;">${label}</td>
+                <td style="padding:12px 0;">${val || '—'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    const relatedGrid = document.getElementById('related-products-grid');
+    if (relatedGrid && related.length > 0) {
+      relatedGrid.innerHTML = related.map(buildProductCard).join('');
+      attachCardHoverEffects();
+    }
+
+  } catch (err) {
+    container.innerHTML = `<p style="text-align:center;padding:60px;color:#c0392b;">Product not found.</p>`;
+    console.error(err);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PAGE: contact.html  (form must have id="contact-form")
+// ═══════════════════════════════════════════════════════════════
+function initContactPage() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const submitBtn = form.querySelector('[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    const existing = form.querySelector('.form-message');
+    if (existing) existing.remove();
+
+    const body = {
+      firstName: form.querySelector('#firstName')?.value.trim(),
+      lastName:  form.querySelector('#lastName')?.value.trim(),
+      email:     form.querySelector('#email')?.value.trim(),
+      phone:     form.querySelector('#phone')?.value.trim(),
+      company:   form.querySelector('#company')?.value.trim(),
+      subject:   form.querySelector('#subject')?.value,
+      product:   form.querySelector('#product')?.value,
+      message:   form.querySelector('#message')?.value.trim(),
+    };
+
+    try {
+      const res = await fetch(`${API}/inquiries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'form-message';
+
+      if (json.success) {
+        form.reset();
+        msgDiv.style.cssText = 'background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:6px;padding:14px 18px;margin-top:16px;';
+        msgDiv.textContent = '✅ ' + json.message;
+      } else {
+        msgDiv.style.cssText = 'background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:6px;padding:14px 18px;margin-top:16px;';
+        msgDiv.textContent = '⚠️ ' + (json.message || 'Something went wrong. Please try again.');
+      }
+      form.appendChild(msgDiv);
+      if (window.showNotification) showNotification(json.success ? 'Message sent successfully!' : (json.message || 'Submission failed.'), json.success ? 'success' : 'error');
+
+    } catch (err) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'form-message';
+      msgDiv.style.cssText = 'background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:6px;padding:14px 18px;margin-top:16px;';
+      msgDiv.textContent = '⚠️ Network error. Please check your connection and try again.';
+      form.appendChild(msgDiv);
+      if (window.showNotification) showNotification('Could not connect to server.', 'error');
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Notification system (used site-wide)
+// ═══════════════════════════════════════════════════════════════
+function showNotification(message, type) {
+  const existing = document.querySelector('.notification');
+  if (existing) existing.remove();
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()">&times;</button>`;
+  notification.style.cssText = `
+    position: fixed; top: 100px; right: 20px; padding: 16px 24px;
+    background: ${type === 'success' ? '#7dcfb6' : '#e74c3c'};
+    color: white; border-radius: 12px; display: flex; align-items: center;
+    gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 10000;
+    animation: slideIn 0.3s ease-out;`;
+
+  if (!document.getElementById('notification-keyframes')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'notification-keyframes';
+    styleSheet.textContent = `
+      @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+      .notification button { background: none; border: none; color: white; font-size: 1.25rem; cursor: pointer; padding: 0; line-height: 1; }
+    `;
+    document.head.appendChild(styleSheet);
+  }
+
+  document.body.appendChild(notification);
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease-out forwards';
+    setTimeout(() => notification.remove(), 300);
+  }, 5000);
+}
+window.showNotification = showNotification;
+
+// ═══════════════════════════════════════════════════════════════
+//  Site-wide UX: nav, scroll, animations, counters
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Mobile nav toggle
   const mobileToggle = document.querySelector('.mobile-toggle');
   const navLinks = document.querySelector('.nav-links');
-
   if (mobileToggle && navLinks) {
-    mobileToggle.addEventListener('click', function() {
+    mobileToggle.addEventListener('click', () => {
       navLinks.classList.toggle('active');
-      // Animate hamburger
-      const spans = mobileToggle.querySelectorAll('span');
-      spans.forEach((span, index) => {
-        span.classList.toggle('active');
-      });
+      mobileToggle.querySelectorAll('span').forEach(span => span.classList.toggle('active'));
     });
   }
 
-  // ===== Smooth Scroll for Anchor Links =====
+  // Smooth scroll for in-page anchors
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
       const href = this.getAttribute('href');
       if (href !== '#') {
         e.preventDefault();
-        const target = document.querySelector(href);
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
+        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });
 
-  // ===== Header Scroll Effect =====
+  // Header shadow on scroll
   const header = document.querySelector('.header');
-  let lastScroll = 0;
+  if (header) {
+    window.addEventListener('scroll', () => {
+      header.style.boxShadow = window.pageYOffset > 100
+        ? '0 4px 20px rgba(0,0,0,0.1)'
+        : '0 2px 20px rgba(0,0,0,0.05)';
+    });
+  }
 
-  window.addEventListener('scroll', function() {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > 100) {
-      header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
-    } else {
-      header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.05)';
-    }
-
-    lastScroll = currentScroll;
-  });
-
-  // ===== Animate on Scroll =====
-  const observerOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: 0.1
-  };
-
+  // Fade-in-on-scroll for static elements present at load
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -64,169 +350,28 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.unobserve(entry.target);
       }
     });
-  }, observerOptions);
+  }, { root: null, rootMargin: '0px', threshold: 0.1 });
 
-  // Observe elements with animation classes
-  document.querySelectorAll('.feature-card, .product-card, .application-card, .about-stat').forEach(el => {
+  document.querySelectorAll('.feature-card, .application-card, .about-stat').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
     el.style.transition = 'all 0.6s ease-out';
     observer.observe(el);
   });
 
-  // Add animation styles
-  const style = document.createElement('style');
-  style.textContent = `
-    .animate-in {
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // ===== Form Validation =====
-  const contactForm = document.querySelector('.contact-form form');
-  if (contactForm) {
-    contactForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Get form data
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData);
-      
-      // Basic validation
-      let isValid = true;
-      const inputs = this.querySelectorAll('input[required], textarea[required]');
-      
-      inputs.forEach(input => {
-        if (!input.value.trim()) {
-          isValid = false;
-          input.style.borderColor = '#e74c3c';
-        } else {
-          input.style.borderColor = '#eee';
-        }
-      });
-
-      // Email validation
-      const emailInput = this.querySelector('input[type="email"]');
-      if (emailInput && emailInput.value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailInput.value)) {
-          isValid = false;
-          emailInput.style.borderColor = '#e74c3c';
-        }
-      }
-
-      if (isValid) {
-  try {
-    const response = await fetch(`${API_BASE}/api/inquiries`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification(
-        'Message sent successfully! We will contact you soon.',
-        'success'
-      );
-      this.reset();
-    } else {
-      showNotification(
-        result.message || 'Submission failed.',
-        'error'
-      );
-    }
-  } catch (err) {
-    console.error(err);
-    showNotification(
-      'Could not connect to server.',
-      'error'
-    );
-  }
-} else {  
-        showNotification('Please fill in all required fields correctly.', 'error');
-      }
-    });
+  if (!document.getElementById('animate-in-style')) {
+    const style = document.createElement('style');
+    style.id = 'animate-in-style';
+    style.textContent = `.animate-in { opacity: 1 !important; transform: translateY(0) !important; }`;
+    document.head.appendChild(style);
   }
 
-  // ===== Notification System =====
-  function showNotification(message, type) {
-    // Remove existing notifications
-    const existing = document.querySelector('.notification');
-    if (existing) existing.remove();
-
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-      <span>${message}</span>
-      <button onclick="this.parentElement.remove()">&times;</button>
-    `;
-
-    // Add styles
-    notification.style.cssText = `
-      position: fixed;
-      top: 100px;
-      right: 20px;
-      padding: 16px 24px;
-      background: ${type === 'success' ? '#7dcfb6' : '#e74c3c'};
-      color: white;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      .notification button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.25rem;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-      }
-    `;
-    document.head.appendChild(styleSheet);
-
-    document.body.appendChild(notification);
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease-out forwards';
-      setTimeout(() => notification.remove(), 300);
-    }, 5000);
-  }
-
-  // Make showNotification globally accessible
-  window.showNotification = showNotification;
-
-  // ===== Counter Animation =====
+  // Stat counters
   function animateCounter(element) {
     const target = parseInt(element.textContent);
     const duration = 2000;
     const step = target / (duration / 16);
     let current = 0;
-
     const timer = setInterval(() => {
       current += step;
       if (current >= target) {
@@ -237,8 +382,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }, 16);
   }
-
-  // Observe stat numbers
   const statObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -251,44 +394,24 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }, { threshold: 0.5 });
+  document.querySelectorAll('.stat-item, .about-stat').forEach(el => statObserver.observe(el));
 
-  document.querySelectorAll('.stat-item, .about-stat').forEach(el => {
-    statObserver.observe(el);
-  });
-
-  // ===== Product Card Hover Effects =====
-  document.querySelectorAll('.product-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-      this.querySelector('.product-image').style.transform = 'scale(1.05)';
-    });
-    
-    card.addEventListener('mouseleave', function() {
-      this.querySelector('.product-image').style.transform = 'scale(1)';
-    });
-  });
-
-  // ===== Admin Dashboard Charts (if on admin page) =====
+  // Admin dashboard (only runs on admin.html)
   if (document.querySelector('.admin-content')) {
-    initAdminCharts();
     highlightActivePage();
   }
+
+  // Page-specific dynamic content
+  initProductsPage();
+  initProductDetailsPage();
+  initContactPage();
 });
 
-// ===== Admin Dashboard Functions =====
-function initAdminCharts() {
-  // Simple chart simulation
-  const chartContainer = document.querySelector('.chart-container');
-  if (chartContainer) {
-    // You can integrate Chart.js here for real charts
-    console.log('Admin charts initialized');
-  }
-}
-
-// ===== Admin Button Actions =====
+// ═══════════════════════════════════════════════════════════════
+//  Admin dashboard functions
+// ═══════════════════════════════════════════════════════════════
 function adminAction(action) {
-  console.log('[v0] Admin action triggered:', action);
-  
-  switch(action) {
+  switch (action) {
     case 'addProduct':
       showNotification('Opening Add Product form...', 'success');
       break;
@@ -297,108 +420,72 @@ function adminAction(action) {
       break;
     case 'viewInquiries':
       showNotification('Loading inquiries...', 'success');
-      const inquiriesTable = document.querySelector('.admin-table');
-      if (inquiriesTable) {
-        inquiriesTable.scrollIntoView({ behavior: 'smooth' });
-      }
+      document.querySelector('.admin-table')?.scrollIntoView({ behavior: 'smooth' });
       break;
     case 'generateReport':
       showNotification('Generating monthly report...', 'success');
-      setTimeout(() => {
-        showNotification('Report generated successfully! Downloading...', 'success');
-      }, 1500);
+      setTimeout(() => showNotification('Report generated successfully! Downloading...', 'success'), 1500);
       break;
     default:
       showNotification('Loading...', 'success');
   }
 }
 
-// ===== Admin Navigation - Highlight Active Page =====
 function highlightActivePage() {
   const currentPage = window.location.pathname.split('/').pop() || 'admin.html';
-  console.log('[v0] Current page:', currentPage);
-  
-  // Remove active class from all navigation links
   document.querySelectorAll('.admin-nav a').forEach(link => {
     link.classList.remove('active');
-    
-    // Check if this link matches the current page
-    const href = link.getAttribute('href');
-    if (href === currentPage) {
-      link.classList.add('active');
-      console.log('[v0] Highlighted:', href);
-    }
+    if (link.getAttribute('href') === currentPage) link.classList.add('active');
   });
 }
 
-// ===== Admin Navigation =====
-function adminNavigate(section) {
-  console.log('[v0] Admin section:', section);
-  
-  // Update active state
-  document.querySelectorAll('.admin-nav a').forEach(link => {
-    link.classList.remove('active');
-  });
-  event.target.classList.add('active');
-  
+function adminNavigate(section, event) {
+  document.querySelectorAll('.admin-nav a').forEach(link => link.classList.remove('active'));
+  event?.target?.classList.add('active');
+
   const sectionNames = {
-    'overview': 'Dashboard Overview',
-    'products': 'Products Management',
-    'orders': 'Orders',
-    'customers': 'Customers',
-    'analytics': 'Analytics',
-    'inquiries': 'Customer Inquiries',
-    'categories': 'Categories',
-    'content': 'Content Management',
-    'settings': 'Settings'
+    overview: 'Dashboard Overview', products: 'Products Management', orders: 'Orders',
+    customers: 'Customers', analytics: 'Analytics', inquiries: 'Customer Inquiries',
+    categories: 'Categories', content: 'Content Management', settings: 'Settings'
   };
-  
   const title = document.querySelector('.admin-content h1');
-  if (title) {
-    title.textContent = sectionNames[section] || 'Dashboard';
-  }
-  
+  if (title) title.textContent = sectionNames[section] || 'Dashboard';
   showNotification(`Navigating to ${sectionNames[section]}...`, 'success');
 }
 
-// ===== Product Filtering (Products Page) =====
-function filterProducts(category) {
-  const products = document.querySelectorAll('.product-card');
-  const buttons = document.querySelectorAll('.filter-btn');
-
-  buttons.forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-
-  products.forEach(product => {
-    if (category === 'all' || product.dataset.category === category) {
-      product.style.display = 'block';
-      setTimeout(() => {
-        product.style.opacity = '1';
-        product.style.transform = 'translateY(0)';
-      }, 100);
-    } else {
-      product.style.opacity = '0';
-      product.style.transform = 'translateY(20px)';
-      setTimeout(() => {
-        product.style.display = 'none';
-      }, 300);
-    }
+function searchAdmin(query) {
+  const searchTerm = query.toLowerCase();
+  document.querySelectorAll('.admin-table tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
   });
 }
 
-// ===== Tab Switching (Product Details) =====
-function switchTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-btn');
-  const panels = document.querySelectorAll('.tab-panel');
-
-  tabs.forEach(tab => tab.classList.remove('active'));
-  panels.forEach(panel => panel.classList.remove('active'));
-
-  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-  document.getElementById(tabId).classList.add('active');
+function exportToCSV(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const csv = [];
+  table.querySelectorAll('tr').forEach(row => {
+    const rowData = [];
+    row.querySelectorAll('td, th').forEach(col => rowData.push(col.textContent.trim()));
+    csv.push(rowData.join(','));
+  });
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'export.csv';
+  a.click();
 }
 
-// ===== Quantity Selector =====
+// ═══════════════════════════════════════════════════════════════
+//  Product Details page: tabs + quantity selector
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+  document.getElementById(`${tabId}-content`)?.classList.add('active');
+}
+
 function updateQuantity(change) {
   const input = document.querySelector('.quantity-input');
   if (input) {
@@ -407,40 +494,4 @@ function updateQuantity(change) {
     if (value > 100) value = 100;
     input.value = value;
   }
-}
-
-// ===== Admin Search =====
-function searchAdmin(query) {
-  const rows = document.querySelectorAll('.admin-table tbody tr');
-  const searchTerm = query.toLowerCase();
-
-  rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
-    row.style.display = text.includes(searchTerm) ? '' : 'none';
-  });
-}
-
-// ===== Export to CSV (Admin) =====
-function exportToCSV(tableId) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-
-  let csv = [];
-  const rows = table.querySelectorAll('tr');
-
-  rows.forEach(row => {
-    const cols = row.querySelectorAll('td, th');
-    const rowData = [];
-    cols.forEach(col => rowData.push(col.textContent.trim()));
-    csv.push(rowData.join(','));
-  });
-
-  const csvContent = csv.join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'export.csv';
-  a.click();
 }

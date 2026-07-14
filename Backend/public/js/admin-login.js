@@ -189,7 +189,7 @@
   // If already logged in, button goes straight to panel
   if (localStorage.getItem('admin_token')) {
     floatBtn.textContent = '⚙️ Admin Panel';
-    floatBtn.onclick = () => window.location.href = '/Industrial-Nano-Material-Portal-/admin/';
+    floatBtn.onclick = () => window.location.href = 'admin/';
   } else {
     floatBtn.onclick = openModal;
   }
@@ -243,7 +243,7 @@
       if (json.success && json.token) {
         localStorage.setItem('admin_token', json.token);
         closeModal();
-        window.location.href = '/Industrial-Nano-Material-Portal-/admin/';
+        window.location.href = 'admin/';
       } else {
         errorBox.textContent = json.message || 'Invalid credentials.';
         errorBox.classList.add('show');
